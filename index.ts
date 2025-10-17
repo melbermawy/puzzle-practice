@@ -28,22 +28,6 @@ function hasConsecutive(row: string[], needed: number): number {
 }
 
 
-function findAllRuns(row: string[]) {
-    let runs = []
-    let start = 0
-    for (let i = 1; i <= row.length; i++) {
-        if (row[i] !== row[start]) {
-            runs.push({ value: row[start], start, end: i - 1 })
-            start = i
-        }
-
-    }
-    return runs
-}
-
-console.log(findAllRuns(["A","A","B","A","A","A"]))
-
-
 function countIslands(grid: string[][]) {
     
     for (let r = 0; r < grid.length; r++) {
@@ -95,13 +79,7 @@ export function countAIslands(grid: Grid): number {
   if (rows === 0) return 0
   const cols = grid[0].length
   const seen: boolean[][] = Array.from({ length: rows }, () => Array(cols).fill(false))
-
-  const dirs = [
-    [1, 0],
-    [-1, 0],
-    [0, 1], 
-    [0, -1],
-  ]
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
   let islands = 0
   for (let r = 0; r < rows; r++) {
@@ -118,7 +96,7 @@ export function countAIslands(grid: Grid): number {
         for (const [dr, dc] of dirs) {
           const nr = cr + dr, nc = cc + dc
           if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
-          if (seen[nr][nc]) continue;
+          if (seen[nr][nc]) continue
           if (grid[nr][nc] !== "A") continue
           seen[nr][nc] = true;
           stack.push([nr, nc]);
@@ -128,3 +106,78 @@ export function countAIslands(grid: Grid): number {
   }
   return islands
 }
+
+function findRunAgain(row: string[]) {
+    let runs = []
+    let start = 0
+    for (let i = 1; i < row.length; i++) {
+        if (row[i] !== row[start]) {
+            runs.push({ value: row[start], start, end: i - 1 })
+            start = i
+        }
+    }
+    return runs
+}
+
+function returnIndex(row: string[], needed: number): number {
+    for (let start = 0; start <= row.length - needed; start++) {
+        const slidingWindow = row.slice(start, start + needed)
+        if (slidingWindow.every(x => x === "A")) return start
+    }
+    return -1
+}
+
+/*
+how do directions work? coordinate system:
+[1, 0] down
+[-1, 0] up
+[0, 1] right
+[0, -1] left
+
+notice how it's inverted to graph coordinates:
+(0, 1) up
+(0, -1) down
+(1, 0) right
+(-1, 0) left
+
+this makes it confusing and needs getting used to, axis are inverted, moving direction is inverted both horizontally and vertically
+*/
+
+function findAllRuns(row: string[]) {
+    let runs = []
+    let start = 0
+    for (let i = 1; i <= row.length; i++) {
+        if (row[i] !== row[start]) {
+            runs.push({ value: row[start], start, end: i - 1 })
+            start = i
+        }
+
+    }
+    return runs
+}
+
+console.log(findAllRuns(["A","A","B","A","A","A"]))
+
+function enumerateRuns(row: string[]) {
+    let output = []
+    let start = 0
+    for (let i = 1; i <= row.length; i++) {
+        if (row[i] !== row[start]) {
+            output.push({value: row[start], start, end: i - 1})
+            start = i
+        }
+    }
+    return output
+}
+
+console.log(enumerateRuns(["A","A","B","A","A","A"]))
+
+function firstARun(row: string[], needed: number) {
+    for (let start = 0; start <= row.length - needed; start++) {
+        const window = row.slice(start, start + needed)
+        if (window.every(x => x === "A")) return start
+    }
+}
+
+console.log(firstARun(["A","A","B","A","A","A"], 2))
+
